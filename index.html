@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SORA Video Organizer</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #07070f;
+  --panel:    #0e0e1e;
+  --border:   #1c1c38;
+  --accent:   #7c3aed;
+  --glow:     #a78bfa;
+  --text:     #cccce0;
+  --muted:    #4a4a62;
+  --teal:     #2dd4a0;
+  --red:      #f87171;
+  --amber:    #fbbf24;
+  --radius:   12px;
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+html, body {
+  min-height: 100%; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px; -webkit-text-size-adjust: 100%;
+}
+.hidden { display: none !important; }
+
+/* ── Setup Screen ── */
+#screen-setup {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px calc(40px + var(--safe-bot));
+}
+.setup-card {
+  width: 100%; max-width: 500px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px 24px; display: flex; flex-direction: column; gap: 22px;
+}
+.setup-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+}
+.setup-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
+.setup-sub   { font-size: 13px; color: var(--muted); line-height: 1.55; margin-top: 4px; }
+.field-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+}
+.field-hint { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+input[type="password"] {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 14px;
+  padding: 13px 14px; outline: none; -webkit-appearance: none;
+}
+input[type="password"]:focus { border-color: var(--accent); }
+input[type="text"] {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 15px;
+  padding: 13px 14px; outline: none; -webkit-appearance: none;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+input[type="text"]:focus { border-color: var(--accent); }
+.file-drop-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 30px 20px; display: flex; flex-direction: column;
+  align-items: center; gap: 10px; cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.file-drop-zone:active { border-color: var(--accent); background: rgba(124,58,237,.05); }
+.drop-icon { opacity: .3; }
+.drop-main { font-size: 15px; font-weight: 600; color: #fff; }
+.drop-sub  { font-size: 12px; color: var(--muted); }
+#file-input { display: none; }
+#file-count { font-size: 13px; color: var(--teal); text-align: center; min-height: 18px; font-weight: 500; }
+.btn-primary {
+  width: 100%; background: var(--accent); color: #fff;
+  font-size: 15px; font-weight: 700; padding: 15px; border: none;
+  border-radius: var(--radius); cursor: pointer; -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary:active   { opacity: .82; }
+.btn-primary:disabled { opacity: .3; pointer-events: none; }
+
+/* ── Organize Screen ── */
+#screen-organize { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+#topbar {
+  position: sticky; top: 0; z-index: 20; background: var(--panel);
+  border-bottom: 1px solid var(--border); padding: 10px 16px;
+  display: flex; align-items: center; gap: 12px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+}
+#prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+#prog-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--glow)); width: 0%; transition: width .35s; }
+#topbar-counter { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ── Video preview ── */
+#vid-wrap {
+  background: #000; display: flex; align-items: center;
+  justify-content: center; overflow: hidden; flex-shrink: 0;
+  height: 42vh; max-height: 420px; position: relative;
+}
+#video-preview {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  display: none; background: #000;
+}
+#vid-spinner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; color: var(--muted);
+}
+.spinner-ring {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#fname-bar {
+  font-size: 10px; color: var(--muted); background: var(--panel);
+  border-bottom: 1px solid var(--border); padding: 5px 16px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
+}
+
+/* ── Side panel ── */
+#side-panel {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 16px 16px calc(24px + var(--safe-bot));
+  display: flex; flex-direction: column; gap: 16px;
+}
+.s-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+}
+#suggest-box {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; min-height: 44px;
+  display: flex; align-items: center; gap: 10px;
+}
+.pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: pulse .9s ease-in-out infinite; flex-shrink: 0;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+#suggest-text {
+  font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--teal); word-break: break-all;
+}
+
+/* ── Category grid ── */
+#cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cat-btn {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-size: 11px; font-weight: 700; padding: 13px 8px;
+  text-align: center; cursor: pointer; -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent; letter-spacing: .03em;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.cat-btn:active { opacity: .75; }
+.cat-btn.active { background: var(--accent); border-color: var(--glow); color: #fff; }
+
+/* ── Action row ── */
+#action-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+#btn-skip {
+  background: transparent; border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--muted); font-size: 14px; font-weight: 600; padding: 15px 10px;
+  cursor: pointer; -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
+}
+#btn-skip:active { opacity: .7; }
+#btn-move {
+  background: var(--border); border: none; border-radius: var(--radius);
+  color: var(--muted); font-size: 14px; font-weight: 700; padding: 15px 10px;
+  cursor: default; pointer-events: none; -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .2s, color .2s;
+}
+#btn-move.ready { background: var(--accent); color: #fff; cursor: pointer; pointer-events: auto; }
+#btn-move.ready:active { opacity: .82; }
+
+/* ── Complete Screen ── */
+#screen-complete {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px calc(40px + var(--safe-bot)); gap: 20px; text-align: center;
+}
+.done-glyph  { font-size: 40px; opacity: .2; letter-spacing: -2px; }
+.done-title  { font-size: 26px; font-weight: 800; color: #fff; }
+#stats-card  {
+  width: 100%; max-width: 400px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+.stat-row    { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.stat-row:last-child { border-bottom: none; }
+.stat-label  { color: var(--muted); font-size: 13px; }
+.stat-val    { font-size: 16px; font-weight: 700; color: #fff; }
+#btn-export  {
+  width: 100%; max-width: 400px; background: var(--teal); color: #000;
+  font-size: 15px; font-weight: 800; padding: 16px; border: none;
+  border-radius: var(--radius); cursor: pointer; -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#btn-export:active   { opacity: .85; }
+#btn-export:disabled { opacity: .5; pointer-events: none; }
+.done-note   { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 340px; }
+#btn-restart { font-size: 13px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══ SCREEN 1 — SETUP ══ -->
+<div id="screen-setup">
+  <div class="setup-card">
+    <div>
+      <div class="setup-eyebrow">SORA Video Organizer</div>
+      <div class="setup-title">Organize Your Clips</div>
+      <p class="setup-sub">Select video clips from your Files or iCloud Drive. Gemini AI analyzes each clip — you assign it to a creator account.</p>
+    </div>
+
+    <div>
+      <div class="field-label">Gemini API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(aistudio.google.com/app/apikey)</span></div>
+      <input type="password" id="gemini-key-input" placeholder="AIza..." autocomplete="off" spellcheck="false">
+      <p class="field-hint">Free tier available. Analyzes a video frame for each clip.</p>
+    </div>
+
+    <div>
+      <div class="field-label">Video Clips</div>
+      <label class="file-drop-zone" for="file-input">
+        <svg class="drop-icon" width="36" height="36" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span class="drop-main">Tap to select video clips</span>
+        <span class="drop-sub">MP4, MOV, M4V, WebM — opens Files / iCloud Drive</span>
+      </label>
+      <input type="file" id="file-input"
+             accept="video/mp4,video/quicktime,video/webm,video/x-m4v,video/avi" multiple>
+    </div>
+
+    <div id="file-count"></div>
+    <button class="btn-primary" id="btn-start" disabled>Select clips to begin</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2 — ORGANIZE ══ -->
+<div id="screen-organize" class="hidden">
+  <div id="topbar">
+    <div id="prog-track"><div id="prog-fill"></div></div>
+    <span id="topbar-counter">— / —</span>
+  </div>
+
+  <div id="vid-wrap">
+    <video id="video-preview" controls muted loop playsinline style="display:none;max-width:100%;max-height:100%;object-fit:contain"></video>
+    <div id="vid-spinner">
+      <div class="spinner-ring"></div>
+      <span style="font-size:12px">Loading clip…</span>
+    </div>
+  </div>
+
+  <div id="fname-bar">—</div>
+
+  <div id="side-panel">
+
+    <div>
+      <div class="s-label">Gemini Description</div>
+      <div id="suggest-box">
+        <div id="suggest-icon"></div>
+        <div id="suggest-text">—</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="s-label">File Name</div>
+      <input type="text" id="name-input" placeholder="descriptive-name-here"
+             autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none">
+    </div>
+
+    <div>
+      <div class="s-label">Creator / Account</div>
+      <div id="cat-grid"></div>
+    </div>
+
+    <div id="action-row">
+      <button id="btn-skip" onclick="skipFile()">Skip →</button>
+      <button id="btn-move" onclick="moveFile()">Move Clip →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 3 — COMPLETE ══ -->
+<div id="screen-complete" class="hidden">
+  <div class="done-glyph">▶ ∅ ◀</div>
+  <div class="done-title">All Clips Organized</div>
+
+  <div id="stats-card">
+    <div class="stat-row"><span class="stat-label">Organized</span><span class="stat-val" id="stat-moved">0</span></div>
+    <div class="stat-row"><span class="stat-label">Skipped</span><span class="stat-val" id="stat-skipped">0</span></div>
+  </div>
+
+  <button id="btn-export" onclick="exportZip()">⬇&nbsp; Download Organized ZIP</button>
+  <p class="done-note">Save the ZIP to your iCloud Drive and extract it into your SORA Files folder.</p>
+  <button id="btn-restart" onclick="restart()">Organize another batch</button>
+</div>
+
+<script>
+// ══ CONFIG ══════════════════════════════════════════════════════
+// Paste your Gemini key here to pre-fill on every visit
+const DEFAULT_GEMINI_KEY = "";
+
+// ZIP filename
+const ZIP_FILENAME = "SORA-Organized.zip";
+
+// Creator/Account categories: "number": ["PREFIX-", "Folder Name"]
+const CATEGORIES = {
+  "1": ["IlGoticoCreep-", "IlGoticoCreep"],
+  "2": ["MoMoms-",        "MoMoms"],
+  "3": ["AudreyBlush-",   "AudreyBlush"],
+  "4": ["Playground-",    "Playground"],
+  "5": ["UGA_irls-",      "UGA_irls"],
+  "6": ["WerBinIch-",     "Wer.bin.ich"],
+  "7": ["ChasWatkins67-", "ChasWatkins67"],
+};
+// ══ END CONFIG ══════════════════════════════════════════════════
+
+let files       = [];
+let currentIdx  = 0;
+let selectedCat = null;
+let organized   = [];
+let stats       = { moved: 0, skipped: 0 };
+let geminiKey   = '';
+
+// ── Setup ────────────────────────────────────────────────────────
+
+const fileInput    = document.getElementById('file-input');
+const geminiInput  = document.getElementById('gemini-key-input');
+const btnStart     = document.getElementById('btn-start');
+const fileCountEl  = document.getElementById('file-count');
+
+try {
+  const saved = localStorage.getItem('sora_gemini');
+  if (saved) geminiInput.value = saved;
+  else if (DEFAULT_GEMINI_KEY) geminiInput.value = DEFAULT_GEMINI_KEY;
+} catch(e) {}
+
+fileInput.addEventListener('change', () => {
+  files = Array.from(fileInput.files);
+  const n = files.length;
+  fileCountEl.textContent = n > 0 ? `✓  ${n} clip${n !== 1 ? 's' : ''} selected` : '';
+  btnStart.disabled    = n === 0;
+  btnStart.textContent = n > 0
+    ? `Start Organizing  ${n}  Clip${n !== 1 ? 's' : ''}`
+    : 'Select clips to begin';
+});
+
+btnStart.addEventListener('click', () => {
+  geminiKey = geminiInput.value.trim();
+  try { if (geminiKey) localStorage.setItem('sora_gemini', geminiKey); } catch(e) {}
+  buildCatGrid();
+  showScreen('organize');
+  currentIdx = 0; organized = []; stats = { moved: 0, skipped: 0 };
+  showCurrent();
+});
+
+// ── Category Grid ─────────────────────────────────────────────────
+
+function buildCatGrid() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  for (const [num, [prefix, folder]] of Object.entries(CATEGORIES)) {
+    const btn = document.createElement('button');
+    btn.className   = 'cat-btn';
+    btn.id          = `cat-${num}`;
+    btn.textContent = folder;
+    btn.addEventListener('click', () => selectCat(num));
+    grid.appendChild(btn);
+  }
+}
+
+function selectCat(num) {
+  if (selectedCat) document.getElementById(`cat-${selectedCat}`)?.classList.remove('active');
+  selectedCat = num;
+  document.getElementById(`cat-${num}`)?.classList.add('active');
+  checkReady();
+}
+
+function resetCat() {
+  if (selectedCat) document.getElementById(`cat-${selectedCat}`)?.classList.remove('active');
+  selectedCat = null;
+}
+
+// ── Organize Flow ─────────────────────────────────────────────────
+
+async function showCurrent() {
+  if (currentIdx >= files.length) { showComplete(); return; }
+
+  const f     = files[currentIdx];
+  const total = files.length;
+
+  document.getElementById('prog-fill').style.width  = (currentIdx / total * 100) + '%';
+  document.getElementById('topbar-counter').textContent = `${currentIdx + 1} / ${total}`;
+  document.getElementById('fname-bar').textContent   = f.name;
+  document.getElementById('name-input').value         = '';
+  resetCat(); checkReady();
+
+  // Load video player
+  const videoEl  = document.getElementById('video-preview');
+  const spinner  = document.getElementById('vid-spinner');
+  videoEl.style.display = 'none';
+  spinner.style.display = 'flex';
+
+  const prevUrl = videoEl.src;
+  if (prevUrl && prevUrl.startsWith('blob:')) URL.revokeObjectURL(prevUrl);
+  videoEl.src = URL.createObjectURL(f);
+
+  videoEl.oncanplay = () => {
+    spinner.style.display  = 'none';
+    videoEl.style.display  = 'block';
+  };
+  videoEl.load();
+
+  // Analyze frame with Gemini
+  if (geminiKey) {
+    setSuggestion('analyzing', 'Extracting frame…');
+    const suggestion = await analyzeWithGemini(f);
+    if (suggestion) {
+      setSuggestion('ready', suggestion);
+      document.getElementById('name-input').value = suggestion;
+      checkReady();
+    } else {
+      setSuggestion('error', 'Could not analyze — type a name below');
+      document.getElementById('name-input').focus();
+    }
+  } else {
+    setSuggestion('manual', 'No Gemini key — type a name below');
+    setTimeout(() => document.getElementById('name-input').focus(), 150);
+  }
+}
+
+function setSuggestion(state, text) {
+  const icon = document.getElementById('suggest-icon');
+  const disp = document.getElementById('suggest-text');
+  if (state === 'analyzing') {
+    icon.innerHTML   = '<div class="pulse"></div>';
+    disp.style.color = 'var(--muted)';
+  } else if (state === 'ready') {
+    icon.innerHTML   = '<span style="color:var(--teal);font-size:16px">✓</span>';
+    disp.style.color = 'var(--teal)';
+  } else {
+    icon.innerHTML   = '<span style="color:var(--muted);font-size:14px">—</span>';
+    disp.style.color = 'var(--muted)';
+  }
+  disp.textContent = text;
+}
+
+// ── Gemini Frame Analysis ─────────────────────────────────────────
+
+async function analyzeWithGemini(file) {
+  try {
+    const b64 = await extractVideoFrame(file);
+    if (!b64) return null;
+
+    setSuggestion('analyzing', 'Analyzing with Gemini…');
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { inline_data: { mime_type: 'image/jpeg', data: b64 } },
+              { text: 'Analyze this video frame. Return ONLY a short descriptive filename: 2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. Describe what is visually happening. Examples: woman-dancing-rooftop, aerial-city-night, fashion-model-walking, ocean-waves-sunset.' }
+            ]
+          }]
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setSuggestion('error', `Gemini ${res.status}: ${(err?.error?.message || '').slice(0,60)}`);
+      return null;
+    }
+
+    const data = await res.json();
+    const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    return raw.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '') || null;
+
+  } catch (err) {
+    setSuggestion('error', 'Error: ' + err.message);
+    return null;
+  }
+}
+
+function extractVideoFrame(file) {
+  return new Promise((resolve) => {
+    const video    = document.createElement('video');
+    video.muted    = true;
+    video.preload  = 'metadata';
+    video.playsinline = true;
+
+    video.addEventListener('loadeddata', () => {
+      video.currentTime = Math.min(1.5, (video.duration || 3) * 0.15);
+    });
+
+    video.addEventListener('seeked', () => {
+      try {
+        const MAX    = 1024;
+        const vw     = video.videoWidth  || 640;
+        const vh     = video.videoHeight || 360;
+        const scale  = Math.min(1, MAX / Math.max(vw, vh));
+        const w      = Math.round(vw * scale);
+        const h      = Math.round(vh * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+        const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+        URL.revokeObjectURL(video.src);
+        resolve(b64 || null);
+      } catch(e) { resolve(null); }
+    });
+
+    video.addEventListener('error', () => resolve(null));
+    video.src = URL.createObjectURL(file);
+  });
+}
+
+// ── Move / Skip ───────────────────────────────────────────────────
+
+function checkReady() {
+  const name  = document.getElementById('name-input').value.trim();
+  const ready = !!(name && selectedCat);
+  document.getElementById('btn-move').classList.toggle('ready', ready);
+}
+
+document.getElementById('name-input').addEventListener('input', checkReady);
+
+function moveFile() {
+  const name = document.getElementById('name-input').value.trim();
+  if (!name || !selectedCat) return;
+  const f                   = files[currentIdx];
+  const [prefix, subfolder] = CATEGORIES[selectedCat];
+  const ext                 = (f.name.split('.').pop() || 'mp4').toLowerCase();
+  const finalName           = `${prefix}${name}.${ext}`;
+  organized.push({ file: f, finalName, subfolder });
+  stats.moved++;
+  currentIdx++;
+  showCurrent();
+}
+
+function skipFile() {
+  stats.skipped++;
+  currentIdx++;
+  showCurrent();
+}
+
+// ── Complete + Export ─────────────────────────────────────────────
+
+function showComplete() {
+  document.getElementById('stat-moved').textContent   = stats.moved;
+  document.getElementById('stat-skipped').textContent = stats.skipped;
+  showScreen('complete');
+}
+
+async function exportZip() {
+  if (organized.length === 0) { alert('Nothing organized yet.'); return; }
+
+  if (typeof JSZip === 'undefined') {
+    alert('ZIP library not loaded. Please refresh and try again.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-export');
+  btn.textContent = `Building ZIP for ${organized.length} clip${organized.length !== 1 ? 's' : ''}…`;
+  btn.disabled    = true;
+
+  try {
+    const zip = new JSZip();
+    for (const item of organized) {
+      const buf = await item.file.arrayBuffer();
+      zip.folder('SORA-Organized').folder(item.subfolder).file(item.finalName, buf);
+    }
+    const blob    = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+    const zipFile = new File([blob], ZIP_FILENAME, { type: 'application/zip' });
+
+    let shared = false;
+    if (navigator.share && navigator.canShare?.({ files: [zipFile] })) {
+      try { await navigator.share({ files: [zipFile], title: 'SORA Organized' }); shared = true; }
+      catch(e) { if (e.name === 'AbortError') shared = true; }
+    }
+
+    if (!shared) {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href = url; a.download = ZIP_FILENAME; a.style.display = 'none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => { window.open(url, '_blank'); setTimeout(() => URL.revokeObjectURL(url), 30000); }, 500);
+    }
+  } catch(err) {
+    alert('Export failed: ' + (err.message || 'Unknown error'));
+  }
+
+  btn.textContent = '⬇\u00a0 Download Organized ZIP';
+  btn.disabled    = false;
+}
+
+// ── Utils ─────────────────────────────────────────────────────────
+
+function showScreen(name) {
+  ['setup', 'organize', 'complete'].forEach(s =>
+    document.getElementById(`screen-${s}`).classList.toggle('hidden', s !== name)
+  );
+}
+
+function restart() {
+  files = []; currentIdx = 0; selectedCat = null;
+  organized = []; stats = { moved: 0, skipped: 0 };
+  fileInput.value = ''; fileCountEl.textContent = '';
+  btnStart.disabled = true; btnStart.textContent = 'Select clips to begin';
+  showScreen('setup');
+}
+
+// Keyboard (Magic Keyboard on iPad)
+document.addEventListener('keydown', e => {
+  if (document.getElementById('screen-organize').classList.contains('hidden')) return;
+  if (document.activeElement === document.getElementById('name-input')) {
+    if (e.key === 'Enter') { e.preventDefault(); moveFile(); }
+    return;
+  }
+  if (e.key === 's' || e.key === 'S') { skipFile(); return; }
+  if (e.key === 'Enter')              { moveFile(); return; }
+  const n = parseInt(e.key);
+  if (!isNaN(n) && n >= 1 && n <= 7)  { selectCat(String(n)); }
+});
+</script>
+
+<!-- JSZip bundled inline for offline/iCloud reliability -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>
