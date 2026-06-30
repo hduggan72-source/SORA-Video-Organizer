@@ -21,7 +21,7 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Claude API Key ───────────────────────────────────────────────
 # Get a key at: console.anthropic.com
-ANTHROPIC_API_KEY = "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"
+ANTHROPIC_API_KEY = "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"
 # ── Claude Model ─────────────────────────────────────────────────
 CLAUDE_MODEL = "claude-sonnet-4-6"
 

@@ -1,14 +1,172 @@
-2026-06-29 23:52:36    Found 4 video clip(s) in _inbox.
-2026-06-29 23:52:36  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2026-06-30 00:03:14    Found 4 video clip(s) in _inbox.
+2026-06-30 00:03:14  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:5175
-2026-06-29 23:52:36  [33mPress CTRL+C to quit[0m
-2026-06-29 23:52:39  127.0.0.1 - - [29/Jun/2026 23:52:39] "GET / HTTP/1.1" 200 -
-2026-06-29 23:52:40  127.0.0.1 - - [29/Jun/2026 23:52:40] "GET /api/status HTTP/1.1" 200 -
-2026-06-29 23:52:40  127.0.0.1 - - [29/Jun/2026 23:52:40] "GET /api/current HTTP/1.1" 200 -
-2026-06-29 23:52:40  127.0.0.1 - - [29/Jun/2026 23:52:40] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2026-06-29 23:52:40  127.0.0.1 - - [29/Jun/2026 23:52:40] "[35m[1mGET /api/video?1782791560462 HTTP/1.1[0m" 206 -
-2026-06-29 23:52:41    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
-2026-06-29 23:52:41    \u2191 Sending frame to Claude…
-2026-06-29 23:52:56  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
-2026-06-29 23:52:56    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'Invalid authentication credentials'}, 'request_id': 'req_011
-2026-06-29 23:52:56  127.0.0.1 - - [29/Jun/2026 23:52:56] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:03:14  [33mPress CTRL+C to quit[0m
+2026-06-30 00:03:16  127.0.0.1 - - [30/Jun/2026 00:03:16] "GET / HTTP/1.1" 200 -
+2026-06-30 00:03:16  127.0.0.1 - - [30/Jun/2026 00:03:16] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:03:16  127.0.0.1 - - [30/Jun/2026 00:03:16] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:03:17  127.0.0.1 - - [30/Jun/2026 00:03:17] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-30 00:03:17  127.0.0.1 - - [30/Jun/2026 00:03:17] "[35m[1mGET /api/video?1782792197023 HTTP/1.1[0m" 206 -
+2026-06-30 00:03:17    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
+2026-06-30 00:03:17    \u2191 Sending frame to Claude…
+2026-06-30 00:03:21  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:03:21    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnDJAGjvn8nF2js
+2026-06-30 00:03:21  127.0.0.1 - - [30/Jun/2026 00:03:21] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:06:15    Found 4 video clip(s) in _inbox.
+2026-06-30 00:06:15  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-30 00:06:15  [33mPress CTRL+C to quit[0m
+2026-06-30 00:06:17  127.0.0.1 - - [30/Jun/2026 00:06:17] "GET / HTTP/1.1" 200 -
+2026-06-30 00:06:18  127.0.0.1 - - [30/Jun/2026 00:06:18] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:06:18  127.0.0.1 - - [30/Jun/2026 00:06:18] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:06:18    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
+2026-06-30 00:06:18  127.0.0.1 - - [30/Jun/2026 00:06:18] "[35m[1mGET /api/video?1782792378524 HTTP/1.1[0m" 206 -
+2026-06-30 00:06:18    \u2191 Sending frame to Claude…
+2026-06-30 00:06:19  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:06:19    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnSSYv1ADNGsWzM
+2026-06-30 00:06:19  127.0.0.1 - - [30/Jun/2026 00:06:19] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:06:43    Found 4 video clip(s) in _inbox.
+2026-06-30 00:06:43  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-30 00:06:43  [33mPress CTRL+C to quit[0m
+2026-06-30 00:06:45  127.0.0.1 - - [30/Jun/2026 00:06:45] "GET / HTTP/1.1" 200 -
+2026-06-30 00:06:45  127.0.0.1 - - [30/Jun/2026 00:06:45] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:06:45  127.0.0.1 - - [30/Jun/2026 00:06:45] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:06:45    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
+2026-06-30 00:06:45  127.0.0.1 - - [30/Jun/2026 00:06:45] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-30 00:06:45  127.0.0.1 - - [30/Jun/2026 00:06:45] "[35m[1mGET /api/video?1782792405453 HTTP/1.1[0m" 206 -
+2026-06-30 00:06:45    \u2191 Sending frame to Claude…
+2026-06-30 00:06:47  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:06:47    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnUTehHZkjzcwwr
+2026-06-30 00:06:47  127.0.0.1 - - [30/Jun/2026 00:06:47] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:06:50  SKIP    19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4
+2026-06-30 00:06:50  127.0.0.1 - - [30/Jun/2026 00:06:50] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:06:50  127.0.0.1 - - [30/Jun/2026 00:06:50] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:06:50    \u2191 Extracting frame from 19700121_0355_68e9af821bb08191b488578e8ba61421.mp4…
+2026-06-30 00:06:50  127.0.0.1 - - [30/Jun/2026 00:06:50] "[35m[1mGET /api/video?1782792410204 HTTP/1.1[0m" 206 -
+2026-06-30 00:06:50    \u2191 Sending frame to Claude…
+2026-06-30 00:06:51  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:06:51    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnUmXj9v95XKZDs
+2026-06-30 00:06:51  127.0.0.1 - - [30/Jun/2026 00:06:51] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:06:52  SKIP    19700121_0355_68e9af821bb08191b488578e8ba61421.mp4
+2026-06-30 00:06:52  127.0.0.1 - - [30/Jun/2026 00:06:52] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:06:52  127.0.0.1 - - [30/Jun/2026 00:06:52] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:06:52    \u2191 Extracting frame from 19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4…
+2026-06-30 00:06:52  127.0.0.1 - - [30/Jun/2026 00:06:52] "[35m[1mGET /api/video?1782792412182 HTTP/1.1[0m" 206 -
+2026-06-30 00:06:52    \u2191 Sending frame to Claude…
+2026-06-30 00:06:53  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:06:53    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnUuukxPfB78oqD
+2026-06-30 00:06:53  127.0.0.1 - - [30/Jun/2026 00:06:53] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:09:13    Found 4 video clip(s) in _inbox.
+2026-06-30 00:09:13  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-30 00:09:13  [33mPress CTRL+C to quit[0m
+2026-06-30 00:09:14  127.0.0.1 - - [30/Jun/2026 00:09:14] "GET / HTTP/1.1" 200 -
+2026-06-30 00:09:15  127.0.0.1 - - [30/Jun/2026 00:09:15] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:09:15  127.0.0.1 - - [30/Jun/2026 00:09:15] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:09:15    \u2191 Extracting frame from 19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4…
+2026-06-30 00:09:15  127.0.0.1 - - [30/Jun/2026 00:09:15] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-30 00:09:15  127.0.0.1 - - [30/Jun/2026 00:09:15] "[35m[1mGET /api/video?1782792555325 HTTP/1.1[0m" 206 -
+2026-06-30 00:09:15    \u2191 Sending frame to Claude…
+2026-06-30 00:09:17  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:09:17    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnfWzRGr87WyQja
+2026-06-30 00:09:17  127.0.0.1 - - [30/Jun/2026 00:09:17] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:09:21  SKIP    19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4
+2026-06-30 00:09:21  127.0.0.1 - - [30/Jun/2026 00:09:21] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:09:21  127.0.0.1 - - [30/Jun/2026 00:09:21] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:09:21    \u2191 Extracting frame from 2B322A2F-C4C5-4453-8B74-A297A3308430-video.MP4…
+2026-06-30 00:09:21  127.0.0.1 - - [30/Jun/2026 00:09:21] "[35m[1mGET /api/video?1782792561615 HTTP/1.1[0m" 206 -
+2026-06-30 00:09:21    \u2191 Sending frame to Claude…
+2026-06-30 00:09:22  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:09:22    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYnfvW2rrocW3sD2
+2026-06-30 00:09:22  127.0.0.1 - - [30/Jun/2026 00:09:22] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:15:09    Found 4 video clip(s) in _inbox.
+2026-06-30 00:15:09  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-30 00:15:09  [33mPress CTRL+C to quit[0m
+2026-06-30 00:15:11  127.0.0.1 - - [30/Jun/2026 00:15:11] "GET / HTTP/1.1" 200 -
+2026-06-30 00:15:11  127.0.0.1 - - [30/Jun/2026 00:15:11] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:15:11  127.0.0.1 - - [30/Jun/2026 00:15:11] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:15:11    \u2191 Extracting frame from 2B322A2F-C4C5-4453-8B74-A297A3308430-video.MP4…
+2026-06-30 00:15:11  127.0.0.1 - - [30/Jun/2026 00:15:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-30 00:15:11  127.0.0.1 - - [30/Jun/2026 00:15:11] "[35m[1mGET /api/video?1782792911679 HTTP/1.1[0m" 206 -
+2026-06-30 00:15:11    \u2191 Sending frame to Claude…
+2026-06-30 00:15:13  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:15:13    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYo7namMSjCaiMqb
+2026-06-30 00:15:13  127.0.0.1 - - [30/Jun/2026 00:15:13] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:15:20  SKIP    2B322A2F-C4C5-4453-8B74-A297A3308430-video.MP4
+2026-06-30 00:15:20  127.0.0.1 - - [30/Jun/2026 00:15:20] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:15:20  127.0.0.1 - - [30/Jun/2026 00:15:20] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:15:22    Found 4 video clip(s) in _inbox.
+2026-06-30 00:15:22  127.0.0.1 - - [30/Jun/2026 00:15:22] "POST /api/reset HTTP/1.1" 200 -
+2026-06-30 00:15:22  127.0.0.1 - - [30/Jun/2026 00:15:22] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:15:22    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
+2026-06-30 00:15:22  127.0.0.1 - - [30/Jun/2026 00:15:22] "[35m[1mGET /api/video?1782792922056 HTTP/1.1[0m" 206 -
+2026-06-30 00:15:22    \u2191 Sending frame to Claude…
+2026-06-30 00:15:23  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:15:23    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYo8ViXmT5MPGpkV
+2026-06-30 00:15:23  127.0.0.1 - - [30/Jun/2026 00:15:23] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:15:25  SKIP    19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4
+2026-06-30 00:15:25  127.0.0.1 - - [30/Jun/2026 00:15:25] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:15:25  127.0.0.1 - - [30/Jun/2026 00:15:25] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:15:25    \u2191 Extracting frame from 19700121_0355_68e9af821bb08191b488578e8ba61421.mp4…
+2026-06-30 00:15:25  127.0.0.1 - - [30/Jun/2026 00:15:25] "[35m[1mGET /api/video?1782792925633 HTTP/1.1[0m" 206 -
+2026-06-30 00:15:25    \u2191 Sending frame to Claude…
+2026-06-30 00:15:26  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:15:26    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYo8km9wmpySfSrL
+2026-06-30 00:15:26  127.0.0.1 - - [30/Jun/2026 00:15:26] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:15:28  SKIP    19700121_0355_68e9af821bb08191b488578e8ba61421.mp4
+2026-06-30 00:15:28  127.0.0.1 - - [30/Jun/2026 00:15:28] "POST /api/skip HTTP/1.1" 200 -
+2026-06-30 00:15:28  127.0.0.1 - - [30/Jun/2026 00:15:28] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:15:28    \u2191 Extracting frame from 19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4…
+2026-06-30 00:15:28  127.0.0.1 - - [30/Jun/2026 00:15:28] "[35m[1mGET /api/video?1782792928024 HTTP/1.1[0m" 206 -
+2026-06-30 00:15:28    \u2191 Sending frame to Claude…
+2026-06-30 00:15:29  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-06-30 00:15:29    \u2715 Claude error: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CcYo8wWJzSPZixWx7
+2026-06-30 00:15:29  127.0.0.1 - - [30/Jun/2026 00:15:29] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:24:30    Found 4 video clip(s) in _inbox.
+2026-06-30 00:24:30  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-30 00:24:30  [33mPress CTRL+C to quit[0m
+2026-06-30 00:24:32  127.0.0.1 - - [30/Jun/2026 00:24:32] "GET / HTTP/1.1" 200 -
+2026-06-30 00:24:32  127.0.0.1 - - [30/Jun/2026 00:24:32] "GET /api/status HTTP/1.1" 200 -
+2026-06-30 00:24:32  127.0.0.1 - - [30/Jun/2026 00:24:32] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:24:32  127.0.0.1 - - [30/Jun/2026 00:24:32] "[35m[1mGET /api/video?1782793472829 HTTP/1.1[0m" 206 -
+2026-06-30 00:24:33  127.0.0.1 - - [30/Jun/2026 00:24:33] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-06-30 00:24:33    \u2191 Extracting frame from 19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4…
+2026-06-30 00:24:33    \u2191 Sending frame to Claude…
+2026-06-30 00:24:39  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-06-30 00:24:39    \u2713 Claude: friends-harvest-festival-night
+2026-06-30 00:24:39  127.0.0.1 - - [30/Jun/2026 00:24:39] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:25:14  MOVED   19700121_0355_68e9a79fe80c819194ab39bccd6929cd.mp4  \u2192  IlGoticoCreep/IlGoticoCreep-friends-harvest-festival-night.mp4
+2026-06-30 00:25:14  127.0.0.1 - - [30/Jun/2026 00:25:14] "POST /api/move HTTP/1.1" 200 -
+2026-06-30 00:25:14  127.0.0.1 - - [30/Jun/2026 00:25:14] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:25:14    \u2191 Extracting frame from 19700121_0355_68e9af821bb08191b488578e8ba61421.mp4…
+2026-06-30 00:25:14  127.0.0.1 - - [30/Jun/2026 00:25:14] "[35m[1mGET /api/video?1782793514457 HTTP/1.1[0m" 206 -
+2026-06-30 00:25:14    \u2191 Sending frame to Claude…
+2026-06-30 00:25:16  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-06-30 00:25:16    \u2713 Claude: man-shocked-crowd-night
+2026-06-30 00:25:16  127.0.0.1 - - [30/Jun/2026 00:25:16] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:25:20  MOVED   19700121_0355_68e9af821bb08191b488578e8ba61421.mp4  \u2192  IlGoticoCreep/IlGoticoCreep-man-shocked-crowd-night.mp4
+2026-06-30 00:25:20  127.0.0.1 - - [30/Jun/2026 00:25:20] "POST /api/move HTTP/1.1" 200 -
+2026-06-30 00:25:20  127.0.0.1 - - [30/Jun/2026 00:25:20] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:25:20    \u2191 Extracting frame from 19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4…
+2026-06-30 00:25:20  127.0.0.1 - - [30/Jun/2026 00:25:20] "[35m[1mGET /api/video?1782793520413 HTTP/1.1[0m" 206 -
+2026-06-30 00:25:20    \u2191 Sending frame to Claude…
+2026-06-30 00:25:24  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-06-30 00:25:24    \u2713 Claude: woman-candle-ancient-fresco
+2026-06-30 00:25:24  127.0.0.1 - - [30/Jun/2026 00:25:24] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:25:28  MOVED   19700121_0357_68eaf7d332c88191b2de1422ae57f991.MP4  \u2192  IlGoticoCreep/IlGoticoCreep-woman-candle-ancient-fresco.mp4
+2026-06-30 00:25:28  127.0.0.1 - - [30/Jun/2026 00:25:28] "POST /api/move HTTP/1.1" 200 -
+2026-06-30 00:25:28  127.0.0.1 - - [30/Jun/2026 00:25:28] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:25:28    \u2191 Extracting frame from 2B322A2F-C4C5-4453-8B74-A297A3308430-video.MP4…
+2026-06-30 00:25:28  127.0.0.1 - - [30/Jun/2026 00:25:28] "[35m[1mGET /api/video?1782793528099 HTTP/1.1[0m" 206 -
+2026-06-30 00:25:28    \u2191 Sending frame to Claude…
+2026-06-30 00:25:30  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-06-30 00:25:30    \u2713 Claude: giant-skeleton-yard-decoration
+2026-06-30 00:25:30  127.0.0.1 - - [30/Jun/2026 00:25:30] "POST /api/analyze HTTP/1.1" 200 -
+2026-06-30 00:25:34  MOVED   2B322A2F-C4C5-4453-8B74-A297A3308430-video.MP4  \u2192  IlGoticoCreep/IlGoticoCreep-giant-skeleton-yard-decoration.mp4
+2026-06-30 00:25:34  127.0.0.1 - - [30/Jun/2026 00:25:34] "POST /api/move HTTP/1.1" 200 -
+2026-06-30 00:25:34  127.0.0.1 - - [30/Jun/2026 00:25:34] "GET /api/current HTTP/1.1" 200 -
+2026-06-30 00:25:36    Found 0 video clip(s) in _inbox.
+2026-06-30 00:25:36  127.0.0.1 - - [30/Jun/2026 00:25:36] "POST /api/reset HTTP/1.1" 200 -
