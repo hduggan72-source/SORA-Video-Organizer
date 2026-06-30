@@ -2,23 +2,40 @@
 title SORA Video Organizer
 color 0A
 echo.
-echo  Checking dependencies...
+echo ================================================
+echo  SORA Video Organizer - Starting Up
+echo ================================================
+echo.
+echo Checking dependencies...
 echo.
 
 pip show flask >nul 2>&1
-if errorlevel 1 ( echo  Installing Flask... && pip install flask )
+if errorlevel 1 (
+    echo Installing Flask...
+    pip install flask
+)
 
-pip show google-generativeai >nul 2>&1
-if errorlevel 1 ( echo  Installing Google Generative AI... && pip install google-generativeai )
+pip show opencv-python >nul 2>&1
+if errorlevel 1 (
+    echo Installing OpenCV for video frame extraction...
+    pip install opencv-python
+)
 
 echo.
-echo  Starting SORA Organizer...
+echo All dependencies ready.
+echo Starting SORA Organizer...
 echo.
+
 python "%~dp0sora_organizer_desktop.py"
 
+echo.
 if errorlevel 1 (
-    echo.
-    echo  ERROR: Could not start.
-    echo  Make sure Python is installed: https://python.org
-    pause
+    echo ================================================
+    echo  ERROR: The organizer crashed.
+    echo  Read the message above to diagnose.
+    echo ================================================
+) else (
+    echo Organizer closed normally.
 )
+echo.
+pause

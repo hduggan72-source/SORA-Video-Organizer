@@ -5,7 +5,7 @@ Browser-based tool for organizing SORA video clips by creator account.
 Powered by Gemini AI for automatic video description and naming.
 
 QUICK START:
-  1. pip install flask google-generativeai
+  1. pip install flask opencv-python
   2. Edit the CONFIG section below
   3. Double-click run_sora_organizer.bat
 """
@@ -21,12 +21,14 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Gemini API Key ───────────────────────────────────────────────
 # Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = "AQ.Ab8RN6IYCjL096JMiTTxRqfmDEOJhqy0qTRi_HseiAEBGDDx0Q"
+GEMINI_API_KEY = "AQ.Ab8RN6Jj5JK887rFGBT6pqy8ECjEO-P5KlFAkZk28NVjwG-tlg"
 
 # ── Gemini Model ─────────────────────────────────────────────────
-# "gemini-1.5-flash"  → faster, cheaper (recommended to start)
-# "gemini-1.5-pro"    → more accurate, slower
-GEMINI_MODEL = "gemini-1.5-flash"
+# "gemini-2.0-flash"      → fast, cheap, current default (recommended)
+# "gemini-2.5-flash"      → newer, may be more accurate
+# If you get a 404 "model not found" error, run list_gemini_models.py
+# (in this folder) to see exactly which models your API key can use.
+GEMINI_MODEL = "gemini-2.0-flash"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
@@ -85,68 +87,101 @@ inbox       = ugc_root / INBOX_FOLDER
 
 # ── Gemini Video Analysis ────────────────────────────────────────
 
+def extract_video_frame(video_path: Path) -> bytes:
+    """Extract a representative JPEG frame from a video using OpenCV."""
+    import cv2
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise RuntimeError("Could not open video file")
+
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
+    target_frame = max(1, int(total_frames * 0.15))  # ~15% into the clip
+    cap.set(cv2.CAP_PROP_POS_FRAMES, target_frame)
+
+    ok, frame = cap.read()
+    if not ok:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        ok, frame = cap.read()
+    cap.release()
+
+    if not ok or frame is None:
+        raise RuntimeError("Could not extract a frame from video")
+
+    # Resize if too large
+    h, w = frame.shape[:2]
+    max_dim = 1024
+    if max(h, w) > max_dim:
+        scale = max_dim / max(h, w)
+        frame = cv2.resize(frame, (int(w * scale), int(h * scale)))
+
+    ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+    if not ok:
+        raise RuntimeError("Could not encode frame as JPEG")
+    return buf.tobytes()
+
+
 def analyze_video_gemini(video_path: Path):
-    """Upload video to Gemini File API. Returns (suggestion, error_message)."""
+    """Extract a frame from the video and analyze it with Gemini's
+    standard generateContent endpoint (no file upload required).
+    Returns (suggestion, error_message)."""
     if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY or len(GEMINI_API_KEY) < 10:
         return None, "No Gemini key — add GEMINI_API_KEY to config"
+
     try:
-        import google.generativeai as genai
+        import cv2
     except ImportError:
-        msg = "Missing library — run: pip install google-generativeai"
+        msg = "Missing library — run: pip install opencv-python"
         log(f"  ⚠  {msg}")
         return None, msg
 
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        ext       = video_path.suffix.lower().lstrip(".")
-        mime_map  = {
-            "mp4": "video/mp4", "mov": "video/quicktime",
-            "m4v": "video/mp4", "webm": "video/webm",
-            "avi": "video/avi", "mkv": "video/x-matroska",
-        }
-        mime_type = mime_map.get(ext, "video/mp4")
+        import urllib.request, json as json_mod, base64 as b64_mod
 
-        log(f"  ↑ Uploading {video_path.name} to Gemini ({video_path.stat().st_size // 1024} KB)…")
-        video_file = genai.upload_file(path=str(video_path), mime_type=mime_type)
+        log(f"  ↑ Extracting frame from {video_path.name}…")
+        frame_bytes = extract_video_frame(video_path)
+        b64_frame   = b64_mod.standard_b64encode(frame_bytes).decode("utf-8")
 
-        # Wait for Gemini to process
-        for attempt in range(40):
-            video_file = genai.get_file(video_file.name)
-            if video_file.state.name == "ACTIVE":
-                break
-            if video_file.state.name == "FAILED":
-                raise RuntimeError("Gemini rejected the video file")
-            log(f"  … Processing ({attempt * 2}s)")
-            time.sleep(2)
-        else:
-            raise RuntimeError("Gemini processing timed out after 80s")
+        log(f"  ↑ Sending frame to Gemini…")
+        generate_url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models"
+            f"/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+        )
+        payload = json_mod.dumps({
+            "contents": [{
+                "parts": [
+                    {"inline_data": {"mime_type": "image/jpeg", "data": b64_frame}},
+                    {"text": (
+                        "Analyze this video frame. Return ONLY a short descriptive filename: "
+                        "2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. "
+                        "Focus on what is visually happening — subject, action, setting. "
+                        "Examples: woman-dancing-rooftop, aerial-city-night, "
+                        "fashion-runway-close-up, ocean-waves-sunset."
+                    )}
+                ]
+            }]
+        }).encode()
 
-        model    = genai.GenerativeModel(GEMINI_MODEL)
-        response = model.generate_content([
-            video_file,
-            (
-                "Analyze this video clip. Return ONLY a short descriptive filename: "
-                "2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. "
-                "Focus on what is visually happening — the subject, action, and setting. "
-                "Examples: woman-dancing-rooftop, aerial-city-night, "
-                "fashion-runway-close-up, ocean-waves-sunset, street-art-timelapse."
-            )
-        ])
+        req = urllib.request.Request(
+            generate_url, data=payload,
+            headers={"Content-Type": "application/json"}, method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            gen_result = json_mod.loads(resp.read())
 
-        try:
-            genai.delete_file(video_file.name)
-        except Exception:
-            pass
-
-        raw = response.text.strip().lower()
+        raw    = gen_result["candidates"][0]["content"]["parts"][0]["text"].strip().lower()
         result = raw.replace(" ", "-").replace("_", "-")[:60] or None
         if result:
             log(f"  ✓ Gemini: {result}")
             return result, None
-        return None, "Gemini returned an empty response"
+        return None, "Gemini returned empty response"
 
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()[:200]
+        msg  = f"HTTP {e.code}: {body}"
+        log(f"  ✕ Gemini error: {msg}")
+        return None, msg
     except Exception as e:
-        msg = str(e)[:120]
+        msg = str(e)[:150]
         log(f"  ✕ Gemini error: {msg}")
         return None, msg
 
