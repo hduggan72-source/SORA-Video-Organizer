@@ -6,8 +6,9 @@ Powered by Claude AI for automatic video description and naming.
 
 QUICK START:
   1. pip install flask opencv-python anthropic
-  2. Edit the CONFIG section below
-  3. Double-click run_sora_organizer.bat
+  2. Create config_local.py (see config_local.py.example) with your real key
+  3. Edit the rest of the CONFIG section below
+  4. Double-click run_sora_organizer.bat
 """
 
 import os, sys, shutil, zipfile, logging, webbrowser, threading, time
@@ -20,14 +21,24 @@ from flask import Flask, jsonify, request, send_file, Response
 # ════════════════════════════════════════════════════════════════
 
 # ── Claude API Key ───────────────────────────────────────────────
-# Get a key at: console.anthropic.com
-ANTHROPIC_API_KEY = "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"
+# The real key lives in config_local.py — a file that is NEVER
+# committed to Git (see .gitignore), so it's safe even in a public repo.
+# First time setup: copy config_local.py.example to config_local.py
+# and paste your real key in there.
+try:
+    from config_local import ANTHROPIC_API_KEY
+except ImportError:
+    ANTHROPIC_API_KEY = "sk-ant-YOUR-KEY-HERE"
+    print("\n  ⚠  config_local.py not found!")
+    print("     Copy config_local.py.example to config_local.py")
+    print("     and paste your real Anthropic API key inside it.\n")
+
 # ── Claude Model ─────────────────────────────────────────────────
 CLAUDE_MODEL = "claude-sonnet-4-6"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
-WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-SORA1"
+WATCH_PATH = r"C:\Users\Admin\iCloudDrive\Workflow - Repository\SORA Files"
 
 # Drop video clips here to organize them
 INBOX_FOLDER = "_inbox"

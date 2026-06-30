@@ -1,0 +1,15 @@
+# NEVER commit real API keys — this file keeps config_local.py private
+config_local.py
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+sora_organizer_log.txt
+organizer_log.txt
+
+# OS files
+.DS_Store
+Thumbs.db
