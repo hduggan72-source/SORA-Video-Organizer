@@ -21,7 +21,7 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Gemini API Key ───────────────────────────────────────────────
 # Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = ""
+GEMINI_API_KEY = "AQ.Ab8RN6I4oVz0E2aJRplu-ArPavIe0Kw6jJ5icRB7Ml7pWId_kQ"
 
 # ── Gemini Model ─────────────────────────────────────────────────
 # "gemini-1.5-flash"  → faster, cheaper (recommended to start)
