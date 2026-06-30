@@ -142,9 +142,12 @@ def analyze_video_gemini(video_path: Path):
         b64_frame   = b64_mod.standard_b64encode(frame_bytes).decode("utf-8")
 
         log(f"  ↑ Sending frame to Gemini…")
+        # New "AQ." auth keys must be passed as a header, NOT a query param.
+        # Old "AIza" standard keys work with either method, so the header
+        # approach below works for both key formats.
         generate_url = (
             f"https://generativelanguage.googleapis.com/v1beta/models"
-            f"/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+            f"/{GEMINI_MODEL}:generateContent"
         )
         payload = json_mod.dumps({
             "contents": [{
@@ -163,7 +166,11 @@ def analyze_video_gemini(video_path: Path):
 
         req = urllib.request.Request(
             generate_url, data=payload,
-            headers={"Content-Type": "application/json"}, method="POST"
+            headers={
+                "Content-Type":  "application/json",
+                "x-goog-api-key": GEMINI_API_KEY,
+            },
+            method="POST"
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
             gen_result = json_mod.loads(resp.read())
