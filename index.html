@@ -306,25 +306,27 @@ input[type="text"]:focus { border-color: var(--accent); }
 
 <script>
 // ══ CONFIG ══════════════════════════════════════════════════════
-// Paste your Gemini key here to pre-fill on every visit
+// Paste your Anthropic key here to pre-fill on every visit
 // ⚠️  LEAVE THIS BLANK — never paste a real key here before committing to GitHub!
 // This file is public on GitHub Pages, so any key typed here is exposed to everyone.
 // Instead, paste your key into the input field in the browser each session —
 // it saves to your device's local storage only, never to this file or GitHub.
-const DEFAULT_GEMINI_KEY = "";
+const DEFAULT_ANTHROPIC_KEY = "";
 
 // ZIP filename
 const ZIP_FILENAME = "SORA-Organized.zip";
 
 // Creator/Account categories: "number": ["PREFIX-", "Folder Name"]
 const CATEGORIES = {
-  "1": ["IlGoticoCreep-", "IlGoticoCreep"],
-  "2": ["MoMoms-",        "MoMoms"],
-  "3": ["AudreyBlush-",   "AudreyBlush"],
-  "4": ["Playground-",    "Playground"],
-  "5": ["UGA_irls-",      "UGA_irls"],
-  "6": ["WerBinIch-",     "Wer.bin.ich"],
-  "7": ["ChasWatkins67-", "ChasWatkins67"],
+    "1": ("IlGoticoCreep-", "IlGoticoCreep"),
+    "2": ("MoMoms-",        "MoMoms"),
+    "3": ("AudreyBlush-",   "AudreyBlush"),
+    "4": ("Playground-",    "Playground"),
+    "5": ("UGA_irls-",      "UGA"),
+    "6": ("WerBinIch-",     "Wer.bin.ich"),
+    "7": ("ChasWatkins67-", "ChasWatkins67"),
+    "8": ("GROK-",          "GROK"),
+    "9": ("SORA_MISC-",     "SORA Misc"),
 };
 // ══ END CONFIG ══════════════════════════════════════════════════
 

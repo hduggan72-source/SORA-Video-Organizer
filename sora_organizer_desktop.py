@@ -62,9 +62,11 @@ CATEGORIES = {
     "2": ("MoMoms-",        "MoMoms"),
     "3": ("AudreyBlush-",   "AudreyBlush"),
     "4": ("Playground-",    "Playground"),
-    "5": ("UGA_irls-",      "UGA_irls"),
+    "5": ("UGA_irls-",      "UGA"),
     "6": ("WerBinIch-",     "Wer.bin.ich"),
     "7": ("ChasWatkins67-", "ChasWatkins67"),
+    "8": ("GROK-",          "GROK"),
+    "9": ("SORA_MISC-",     "SORA Misc"),
 }
 
 # ════════════════════════════════════════════════════════════════
