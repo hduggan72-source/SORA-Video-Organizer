@@ -215,13 +215,13 @@ input[type="text"]:focus { border-color: var(--accent); }
     <div>
       <div class="setup-eyebrow">SORA Video Organizer</div>
       <div class="setup-title">Organize Your Clips</div>
-      <p class="setup-sub">Select video clips from your Files or iCloud Drive. Gemini AI analyzes each clip — you assign it to a creator account.</p>
+      <p class="setup-sub">Select video clips from your Files or iCloud Drive. Claude AI analyzes each clip — you assign it to a creator account.</p>
     </div>
 
     <div>
-      <div class="field-label">Gemini API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(aistudio.google.com/app/apikey)</span></div>
-      <input type="password" id="gemini-key-input" placeholder="AIza..." autocomplete="off" spellcheck="false">
-      <p class="field-hint">Free tier available. Analyzes a video frame for each clip.</p>
+      <div class="field-label">Claude API Key <span style="font-weight:400;text-transform:none;letter-spacing:0">(console.anthropic.com)</span></div>
+      <input type="password" id="claude-key-input" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+      <p class="field-hint">Analyzes one extracted frame per clip. ~$0.001 per clip.</p>
     </div>
 
     <div>
@@ -263,7 +263,7 @@ input[type="text"]:focus { border-color: var(--accent); }
   <div id="side-panel">
 
     <div>
-      <div class="s-label">Gemini Description</div>
+      <div class="s-label">Claude Description</div>
       <div id="suggest-box">
         <div id="suggest-icon"></div>
         <div id="suggest-text">—</div>
@@ -306,27 +306,27 @@ input[type="text"]:focus { border-color: var(--accent); }
 
 <script>
 // ══ CONFIG ══════════════════════════════════════════════════════
-// Paste your Anthropic key here to pre-fill on every visit
 // ⚠️  LEAVE THIS BLANK — never paste a real key here before committing to GitHub!
 // This file is public on GitHub Pages, so any key typed here is exposed to everyone.
 // Instead, paste your key into the input field in the browser each session —
 // it saves to your device's local storage only, never to this file or GitHub.
-const DEFAULT_ANTHROPIC_KEY = "";
+const DEFAULT_CLAUDE_KEY = "";
 
 // ZIP filename
 const ZIP_FILENAME = "SORA-Organized.zip";
 
 // Creator/Account categories: "number": ["PREFIX-", "Folder Name"]
+// Files will be named: PREFIX-description.mp4
 const CATEGORIES = {
-    "1": ("IlGoticoCreep-", "IlGoticoCreep"),
-    "2": ("MoMoms-",        "MoMoms"),
-    "3": ("AudreyBlush-",   "AudreyBlush"),
-    "4": ("Playground-",    "Playground"),
-    "5": ("UGA_irls-",      "UGA"),
-    "6": ("WerBinIch-",     "Wer.bin.ich"),
-    "7": ("ChasWatkins67-", "ChasWatkins67"),
-    "8": ("GROK-",          "GROK"),
-    "9": ("SORA_MISC-",     "SORA Misc"),
+  "1": ["IlGoticoCreep-", "IlGoticoCreep"],
+  "2": ["MoMoms-",        "MoMoms"],
+  "3": ["AudreyBlush-",   "AudreyBlush"],
+  "4": ["Playground-",    "Playground"],
+  "5": ["UGA_irls-",      "UGA"],
+  "6": ["WerBinIch-",     "Wer.bin.ich"],
+  "7": ["ChasWatkins67-", "ChasWatkins67"],
+  "8": ["GROK-",          "GROK"],
+  "9": ["SORA_MISC-",     "SORA Misc"],
 };
 // ══ END CONFIG ══════════════════════════════════════════════════
 
@@ -335,19 +335,19 @@ let currentIdx  = 0;
 let selectedCat = null;
 let organized   = [];
 let stats       = { moved: 0, skipped: 0 };
-let geminiKey   = '';
+let claudeKey   = '';
 
 // ── Setup ────────────────────────────────────────────────────────
 
 const fileInput    = document.getElementById('file-input');
-const geminiInput  = document.getElementById('gemini-key-input');
+const claudeInput  = document.getElementById('claude-key-input');
 const btnStart     = document.getElementById('btn-start');
 const fileCountEl  = document.getElementById('file-count');
 
 try {
-  const saved = localStorage.getItem('sora_gemini');
-  if (saved) geminiInput.value = saved;
-  else if (DEFAULT_GEMINI_KEY) geminiInput.value = DEFAULT_GEMINI_KEY;
+  const saved = localStorage.getItem('sora_claude');
+  if (saved) claudeInput.value = saved;
+  else if (DEFAULT_CLAUDE_KEY) claudeInput.value = DEFAULT_CLAUDE_KEY;
 } catch(e) {}
 
 fileInput.addEventListener('change', () => {
@@ -361,8 +361,8 @@ fileInput.addEventListener('change', () => {
 });
 
 btnStart.addEventListener('click', () => {
-  geminiKey = geminiInput.value.trim();
-  try { if (geminiKey) localStorage.setItem('sora_gemini', geminiKey); } catch(e) {}
+  claudeKey = claudeInput.value.trim();
+  try { if (claudeKey) localStorage.setItem('sora_claude', claudeKey); } catch(e) {}
   buildCatGrid();
   showScreen('organize');
   currentIdx = 0; organized = []; stats = { moved: 0, skipped: 0 };
@@ -426,10 +426,10 @@ async function showCurrent() {
   };
   videoEl.load();
 
-  // Analyze frame with Gemini
-  if (geminiKey) {
+  // Analyze frame with Claude
+  if (claudeKey) {
     setSuggestion('analyzing', 'Extracting frame…');
-    const suggestion = await analyzeWithGemini(f);
+    const suggestion = await analyzeWithClaude(f);
     if (suggestion) {
       setSuggestion('ready', suggestion);
       document.getElementById('name-input').value = suggestion;
@@ -439,7 +439,7 @@ async function showCurrent() {
       document.getElementById('name-input').focus();
     }
   } else {
-    setSuggestion('manual', 'No Gemini key — type a name below');
+    setSuggestion('manual', 'No Claude key — type a name below');
     setTimeout(() => document.getElementById('name-input').focus(), 150);
   }
 }
@@ -460,39 +460,56 @@ function setSuggestion(state, text) {
   disp.textContent = text;
 }
 
-// ── Gemini Frame Analysis ─────────────────────────────────────────
+// ── Claude Frame Analysis ──────────────────────────────────────────
 
-async function analyzeWithGemini(file) {
+async function analyzeWithClaude(file) {
+  // Local files (file:// protocol) get blocked by CORS — only works
+  // when served over https (e.g. GitHub Pages).
+  const proto = window.location.protocol;
+  if (proto === 'file:' || proto.includes('external-file') || proto.includes('edge-file')) {
+    setSuggestion('error', 'Open from GitHub Pages (https://) to enable AI naming');
+    return null;
+  }
+
   try {
     const b64 = await extractVideoFrame(file);
     if (!b64) return null;
 
-    setSuggestion('analyzing', 'Analyzing with Gemini…');
+    setSuggestion('analyzing', 'Analyzing with Claude…');
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: 'image/jpeg', data: b64 } },
-              { text: 'Analyze this video frame. Return ONLY a short descriptive filename: 2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. Describe what is visually happening. Examples: woman-dancing-rooftop, aerial-city-night, fashion-model-walking, ocean-waves-sunset.' }
-            ]
-          }]
-        })
-      }
-    );
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         claudeKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model:      'claude-sonnet-4-6',
+        max_tokens: 64,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+            { type: 'text',  text: 'Analyze this video frame. Return ONLY a short descriptive filename: 2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. Describe what is visually happening. Examples: woman-dancing-rooftop, aerial-city-night, fashion-model-walking, ocean-waves-sunset.' }
+          ]
+        }]
+      })
+    });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      setSuggestion('error', `Gemini ${res.status}: ${(err?.error?.message || '').slice(0,60)}`);
+      let errMsg = `HTTP ${res.status}`;
+      try {
+        const err = await res.json();
+        errMsg += ': ' + (err?.error?.message || '').slice(0, 80);
+      } catch(e) {}
+      setSuggestion('error', errMsg);
       return null;
     }
 
     const data = await res.json();
-    const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const raw  = data.content?.[0]?.text?.trim() || '';
     return raw.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '') || null;
 
   } catch (err) {
@@ -640,7 +657,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 's' || e.key === 'S') { skipFile(); return; }
   if (e.key === 'Enter')              { moveFile(); return; }
   const n = parseInt(e.key);
-  if (!isNaN(n) && n >= 1 && n <= 7)  { selectCat(String(n)); }
+  if (!isNaN(n) && n >= 1 && n <= 9)  { selectCat(String(n)); }
 });
 </script>
 
