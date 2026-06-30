@@ -21,7 +21,7 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Gemini API Key ───────────────────────────────────────────────
 # Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = "AQ.Ab8RN6I4oVz0E2aJRplu-ArPavIe0Kw6jJ5icRB7Ml7pWId_kQ"
+GEMINI_API_KEY = "YOUR-GEMINI-KEY-HERE"
 
 # ── Gemini Model ─────────────────────────────────────────────────
 # "gemini-1.5-flash"  → faster, cheaper (recommended to start)
@@ -30,7 +30,7 @@ GEMINI_MODEL = "gemini-1.5-flash"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
-WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-SORA1"
+WATCH_PATH = r"C:\Users\Admin\iCloudDrive\Workflow - Repository\SORA Files"
 
 # Drop video clips here to organize them
 INBOX_FOLDER = "_inbox"
@@ -85,14 +85,19 @@ inbox       = ugc_root / INBOX_FOLDER
 
 # ── Gemini Video Analysis ────────────────────────────────────────
 
-def analyze_video_gemini(video_path: Path) -> str | None:
-    """Upload video to Gemini File API and return a filename description."""
+def analyze_video_gemini(video_path: Path):
+    """Upload video to Gemini File API. Returns (suggestion, error_message)."""
     if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY:
-        return None
+        return None, "No Gemini key — add GEMINI_API_KEY to config"
     try:
         import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY)
+    except ImportError:
+        msg = "Missing library — run: pip install google-generativeai"
+        log(f"  ⚠  {msg}")
+        return None, msg
 
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
         ext       = video_path.suffix.lower().lstrip(".")
         mime_map  = {
             "mp4": "video/mp4", "mov": "video/quicktime",
@@ -101,17 +106,20 @@ def analyze_video_gemini(video_path: Path) -> str | None:
         }
         mime_type = mime_map.get(ext, "video/mp4")
 
-        log(f"  ↑ Uploading {video_path.name} to Gemini…")
+        log(f"  ↑ Uploading {video_path.name} to Gemini ({video_path.stat().st_size // 1024} KB)…")
         video_file = genai.upload_file(path=str(video_path), mime_type=mime_type)
 
         # Wait for Gemini to process
-        for _ in range(40):
+        for attempt in range(40):
             video_file = genai.get_file(video_file.name)
             if video_file.state.name == "ACTIVE":
                 break
             if video_file.state.name == "FAILED":
-                raise RuntimeError("Gemini video processing failed")
+                raise RuntimeError("Gemini rejected the video file")
+            log(f"  … Processing ({attempt * 2}s)")
             time.sleep(2)
+        else:
+            raise RuntimeError("Gemini processing timed out after 80s")
 
         model    = genai.GenerativeModel(GEMINI_MODEL)
         response = model.generate_content([
@@ -125,21 +133,22 @@ def analyze_video_gemini(video_path: Path) -> str | None:
             )
         ])
 
-        # Clean up uploaded file from Gemini
         try:
             genai.delete_file(video_file.name)
         except Exception:
             pass
 
         raw = response.text.strip().lower()
-        return raw.replace(" ", "-").replace("_", "-")[:60] or None
+        result = raw.replace(" ", "-").replace("_", "-")[:60] or None
+        if result:
+            log(f"  ✓ Gemini: {result}")
+            return result, None
+        return None, "Gemini returned an empty response"
 
-    except ImportError:
-        log("  ⚠  google-generativeai not installed. Run: pip install google-generativeai")
-        return None
     except Exception as e:
-        log(f"  ✕ Gemini error: {e}")
-        return None
+        msg = str(e)[:120]
+        log(f"  ✕ Gemini error: {msg}")
+        return None, msg
 
 # ── Flask Setup ─────────────────────────────────────────────────
 
@@ -224,10 +233,10 @@ def api_video():
 def api_analyze():
     if current_idx >= len(files):
         return jsonify({"suggestion": ""})
-    suggestion = analyze_video_gemini(files[current_idx])
+    suggestion, error = analyze_video_gemini(files[current_idx])
     if suggestion:
         return jsonify({"suggestion": suggestion})
-    return jsonify({"suggestion": "", "error": "Could not analyze — type a name"})
+    return jsonify({"suggestion": "", "error": error or "Could not analyze — type a name"})
 
 @app.route("/api/move", methods=["POST"])
 def api_move():
@@ -632,16 +641,18 @@ function setSuggestion(text, loading, success) {
   const status = document.getElementById('suggest-status');
   const disp   = document.getElementById('suggest-text');
   if (loading) {
-    status.innerHTML = '<span class="pulse"></span> Analyzing with Gemini…';
+    status.innerHTML = '<span class="pulse"></span> Uploading to Gemini…';
     disp.style.color = 'var(--muted)';
+    disp.textContent = text;
   } else if (success) {
     status.innerHTML = '<span style="color:var(--teal)">✓</span> Description ready';
     disp.style.color = 'var(--teal)';
+    disp.textContent = text;
   } else {
-    status.innerHTML = '<span style="color:var(--muted)">—</span>';
-    disp.style.color = 'var(--muted)';
+    status.innerHTML = '<span style="color:var(--red)">✕</span> Analysis failed';
+    disp.style.color = 'var(--red)';
+    disp.textContent = text;
   }
-  disp.textContent = text;
 }
 
 // ── Categories ────────────────────────────────────────────────────
