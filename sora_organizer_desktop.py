@@ -21,7 +21,7 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Gemini API Key ───────────────────────────────────────────────
 # Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = "YOUR-GEMINI-KEY-HERE"
+GEMINI_API_KEY = "AQ.Ab8RN6I4oVz0E2aJRplu-ArPavIe0Kw6jJ5icRB7Ml7pWId_kQ"
 
 # ── Gemini Model ─────────────────────────────────────────────────
 # "gemini-1.5-flash"  → faster, cheaper (recommended to start)
@@ -30,7 +30,7 @@ GEMINI_MODEL = "gemini-1.5-flash"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
-WATCH_PATH = r"C:\Users\Admin\iCloudDrive\Workflow - Repository\SORA Files"
+WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-SORA1"
 
 # Drop video clips here to organize them
 INBOX_FOLDER = "_inbox"
