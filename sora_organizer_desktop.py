@@ -21,7 +21,7 @@ from flask import Flask, jsonify, request, send_file, Response
 
 # ── Gemini API Key ───────────────────────────────────────────────
 # Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = "AQ.Ab8RN6I4oVz0E2aJRplu-ArPavIe0Kw6jJ5icRB7Ml7pWId_kQ"
+GEMINI_API_KEY = "YOUR-GEMINI-KEY-HERE"
 
 # ── Gemini Model ─────────────────────────────────────────────────
 # "gemini-1.5-flash"  → faster, cheaper (recommended to start)
@@ -30,7 +30,7 @@ GEMINI_MODEL = "gemini-1.5-flash"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
-WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-SORA1"
+WATCH_PATH = r"C:\Users\Admin\iCloudDrive\Workflow - Repository\SORA Files"
 
 # Drop video clips here to organize them
 INBOX_FOLDER = "_inbox"
@@ -87,7 +87,7 @@ inbox       = ugc_root / INBOX_FOLDER
 
 def analyze_video_gemini(video_path: Path):
     """Upload video to Gemini File API. Returns (suggestion, error_message)."""
-    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY:
+    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY or len(GEMINI_API_KEY) < 10:
         return None, "No Gemini key — add GEMINI_API_KEY to config"
     try:
         import google.generativeai as genai
@@ -176,7 +176,7 @@ def index():
 def api_status():
     return jsonify({
         "export_mode":    EXPORT_MODE,
-        "has_gemini_key": bool(GEMINI_API_KEY and "YOUR-GEMINI-KEY" not in GEMINI_API_KEY),
+        "has_gemini_key": bool(GEMINI_API_KEY and len(GEMINI_API_KEY) > 10 and "YOUR-GEMINI-KEY" not in GEMINI_API_KEY),
         "gemini_model":   GEMINI_MODEL,
     })
 
@@ -272,6 +272,17 @@ def api_move():
         log(f"ERROR   {f.name}  --  {e}")
         stats["errors"] += 1
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/reset", methods=["POST"])
+def api_reset():
+    global stats
+    load_files()
+    stats = {"moved": 0, "skipped": 0, "errors": 0}
+    count = len(files)
+    if count > 0:
+        return jsonify({"success": True, "count": count})
+    return jsonify({"success": False, "count": 0,
+                    "error": f"No video clips found in {INBOX_FOLDER} — drop clips in and try again"})
 
 @app.route("/api/skip", methods=["POST"])
 def api_skip():
@@ -550,8 +561,15 @@ kbd { background: var(--border); border-radius: 3px; padding: 1px 5px; font-size
   <h2>All Clips Organized</h2>
   <p id="done-stats"></p>
   <button id="btn-zip" onclick="downloadZip()">⬇ Download ZIP</button>
+  <button id="btn-rescan" onclick="rescanInbox()"
+    style="margin-top:4px;background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--r);color:var(--text);font-size:13px;font-weight:600;
+    padding:12px 28px;cursor:pointer;">
+    ↺ Scan Inbox Again
+  </button>
   <p class="done-note" id="done-note">
-    Drop more clips into <code style="color:#555">_inbox</code> and refresh to organize another batch.
+    Drop more clips into <code style="color:#555">_inbox</code>,
+    then tap <strong>Scan Inbox Again</strong> — no restart needed.
   </p>
 </div>
 
@@ -716,6 +734,32 @@ function showDone(s) {
   }
 }
 
+async function rescanInbox() {
+  const btn = document.getElementById('btn-rescan');
+  btn.textContent = 'Scanning…';
+  btn.disabled    = true;
+  try {
+    const res  = await fetch('/api/reset', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      // Reset local state and return to organize screen
+      document.getElementById('done-screen').style.display  = 'none';
+      document.getElementById('layout').style.display       = '';
+      document.getElementById('topbar').style.display       = '';
+      selectedCat = null;
+      loadCurrent();
+    } else {
+      alert(data.error || 'No clips found in inbox. Add clips and try again.');
+      btn.textContent = '↺ Scan Inbox Again';
+      btn.disabled    = false;
+    }
+  } catch(e) {
+    alert('Reset failed: ' + e.message);
+    btn.textContent = '↺ Scan Inbox Again';
+    btn.disabled    = false;
+  }
+}
+
 async function downloadZip() {
   const btn = document.getElementById('btn-zip');
   btn.textContent = 'Building ZIP…';
@@ -764,7 +808,7 @@ def main():
     print(f"  Export Mode  : {EXPORT_MODE.upper()}")
     print("═" * 55)
 
-    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY:
+    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY or len(GEMINI_API_KEY) < 10:
         print("\n  ⚠  No Gemini API key set.")
         print("     Edit GEMINI_API_KEY at the top of this file.")
         print("     Get a free key at: aistudio.google.com/app/apikey\n")

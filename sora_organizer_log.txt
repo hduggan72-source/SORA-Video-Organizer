@@ -93,3 +93,24 @@
 2026-06-29 21:01:10  127.0.0.1 - - [29/Jun/2026 21:01:10] "GET / HTTP/1.1" 200 -
 2026-06-29 21:01:10  127.0.0.1 - - [29/Jun/2026 21:01:10] "GET /api/status HTTP/1.1" 200 -
 2026-06-29 21:01:11  127.0.0.1 - - [29/Jun/2026 21:01:11] "GET /api/current HTTP/1.1" 200 -
+2026-06-29 21:11:21    Found 8 video clip(s) in _inbox.
+2026-06-29 21:11:21  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-29 21:11:21  [33mPress CTRL+C to quit[0m
+2026-06-29 21:11:23  127.0.0.1 - - [29/Jun/2026 21:11:23] "GET / HTTP/1.1" 200 -
+2026-06-29 21:11:24  127.0.0.1 - - [29/Jun/2026 21:11:24] "GET /api/status HTTP/1.1" 200 -
+2026-06-29 21:11:24  127.0.0.1 - - [29/Jun/2026 21:11:24] "GET /api/current HTTP/1.1" 200 -
+2026-06-29 21:11:27  127.0.0.1 - - [29/Jun/2026 21:11:27] "GET / HTTP/1.1" 200 -
+2026-06-29 21:11:27  127.0.0.1 - - [29/Jun/2026 21:11:27] "GET /api/status HTTP/1.1" 200 -
+2026-06-29 21:11:27  127.0.0.1 - - [29/Jun/2026 21:11:27] "GET /api/current HTTP/1.1" 200 -
+2026-06-29 21:11:28  127.0.0.1 - - [29/Jun/2026 21:11:28] "GET / HTTP/1.1" 200 -
+2026-06-29 21:11:28  127.0.0.1 - - [29/Jun/2026 21:11:28] "GET /api/status HTTP/1.1" 200 -
+2026-06-29 21:11:28  127.0.0.1 - - [29/Jun/2026 21:11:28] "GET /api/current HTTP/1.1" 200 -
+2026-06-29 21:14:01    Found 8 video clip(s) in _inbox.
+2026-06-29 21:14:01  [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5175
+2026-06-29 21:14:01  [33mPress CTRL+C to quit[0m
+2026-06-29 21:14:03  127.0.0.1 - - [29/Jun/2026 21:14:03] "GET / HTTP/1.1" 200 -
+2026-06-29 21:14:03  127.0.0.1 - - [29/Jun/2026 21:14:03] "GET /api/status HTTP/1.1" 200 -
+2026-06-29 21:14:03  127.0.0.1 - - [29/Jun/2026 21:14:03] "GET /api/current HTTP/1.1" 200 -
+2026-06-29 21:14:03  127.0.0.1 - - [29/Jun/2026 21:14:03] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
