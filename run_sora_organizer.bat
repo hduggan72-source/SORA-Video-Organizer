@@ -21,6 +21,12 @@ if errorlevel 1 (
     pip install opencv-python
 )
 
+pip show anthropic >nul 2>&1
+if errorlevel 1 (
+    echo Installing Anthropic for Claude AI...
+    pip install anthropic
+)
+
 echo.
 echo All dependencies ready.
 echo Starting SORA Organizer...

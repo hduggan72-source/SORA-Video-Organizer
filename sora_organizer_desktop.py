@@ -2,10 +2,10 @@
 SORA Video Organizer — Desktop Edition
 =======================================
 Browser-based tool for organizing SORA video clips by creator account.
-Powered by Gemini AI for automatic video description and naming.
+Powered by Claude AI for automatic video description and naming.
 
 QUICK START:
-  1. pip install flask opencv-python
+  1. pip install flask opencv-python anthropic
   2. Edit the CONFIG section below
   3. Double-click run_sora_organizer.bat
 """
@@ -19,16 +19,12 @@ from flask import Flask, jsonify, request, send_file, Response
 #  CONFIG  —  Edit everything in this section before running
 # ════════════════════════════════════════════════════════════════
 
-# ── Gemini API Key ───────────────────────────────────────────────
-# Get a free key at: aistudio.google.com/app/apikey
-GEMINI_API_KEY = "AQ.Ab8RN6Jj5JK887rFGBT6pqy8ECjEO-P5KlFAkZk28NVjwG-tlg"
+# ── Claude API Key ───────────────────────────────────────────────
+# Get a key at: console.anthropic.com
+ANTHROPIC_API_KEY = "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"
 
-# ── Gemini Model ─────────────────────────────────────────────────
-# "gemini-2.0-flash"      → fast, cheap, current default (recommended)
-# "gemini-2.5-flash"      → newer, may be more accurate
-# If you get a 404 "model not found" error, run list_gemini_models.py
-# (in this folder) to see exactly which models your API key can use.
-GEMINI_MODEL = "gemini-2.0-flash"
+# ── Claude Model ─────────────────────────────────────────────────
+CLAUDE_MODEL = "claude-sonnet-4-6"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
@@ -85,7 +81,7 @@ zip_queue   = []
 ugc_root    = Path(WATCH_PATH)
 inbox       = ugc_root / INBOX_FOLDER
 
-# ── Gemini Video Analysis ────────────────────────────────────────
+# ── Claude Video Frame Analysis ──────────────────────────────────
 
 def extract_video_frame(video_path: Path) -> bytes:
     """Extract a representative JPEG frame from a video using OpenCV."""
@@ -95,7 +91,7 @@ def extract_video_frame(video_path: Path) -> bytes:
         raise RuntimeError("Could not open video file")
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
-    target_frame = max(1, int(total_frames * 0.15))  # ~15% into the clip
+    target_frame = max(1, int(total_frames * 0.15))
     cap.set(cv2.CAP_PROP_POS_FRAMES, target_frame)
 
     ok, frame = cap.read()
@@ -107,7 +103,6 @@ def extract_video_frame(video_path: Path) -> bytes:
     if not ok or frame is None:
         raise RuntimeError("Could not extract a frame from video")
 
-    # Resize if too large
     h, w = frame.shape[:2]
     max_dim = 1024
     if max(h, w) > max_dim:
@@ -120,12 +115,11 @@ def extract_video_frame(video_path: Path) -> bytes:
     return buf.tobytes()
 
 
-def analyze_video_gemini(video_path: Path):
-    """Extract a frame from the video and analyze it with Gemini's
-    standard generateContent endpoint (no file upload required).
+def analyze_video_claude(video_path: Path):
+    """Extract a frame from the video and analyze it with Claude.
     Returns (suggestion, error_message)."""
-    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY or len(GEMINI_API_KEY) < 10:
-        return None, "No Gemini key — add GEMINI_API_KEY to config"
+    if not ANTHROPIC_API_KEY or "YOUR-KEY" in ANTHROPIC_API_KEY or len(ANTHROPIC_API_KEY) < 10:
+        return None, "No Claude key — add ANTHROPIC_API_KEY to config"
 
     try:
         import cv2
@@ -135,25 +129,23 @@ def analyze_video_gemini(video_path: Path):
         return None, msg
 
     try:
-        import urllib.request, json as json_mod, base64 as b64_mod
+        import base64 as b64_mod
 
         log(f"  ↑ Extracting frame from {video_path.name}…")
         frame_bytes = extract_video_frame(video_path)
         b64_frame   = b64_mod.standard_b64encode(frame_bytes).decode("utf-8")
 
-        log(f"  ↑ Sending frame to Gemini…")
-        # New "AQ." auth keys must be passed as a header, NOT a query param.
-        # Old "AIza" standard keys work with either method, so the header
-        # approach below works for both key formats.
-        generate_url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models"
-            f"/{GEMINI_MODEL}:generateContent"
-        )
-        payload = json_mod.dumps({
-            "contents": [{
-                "parts": [
-                    {"inline_data": {"mime_type": "image/jpeg", "data": b64_frame}},
-                    {"text": (
+        log(f"  ↑ Sending frame to Claude…")
+        import anthropic
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        msg = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=64,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_frame}},
+                    {"type": "text", "text": (
                         "Analyze this video frame. Return ONLY a short descriptive filename: "
                         "2-4 words, all lowercase, hyphen-separated, no file extension, no extra text. "
                         "Focus on what is visually happening — subject, action, setting. "
@@ -162,34 +154,17 @@ def analyze_video_gemini(video_path: Path):
                     )}
                 ]
             }]
-        }).encode()
-
-        req = urllib.request.Request(
-            generate_url, data=payload,
-            headers={
-                "Content-Type":  "application/json",
-                "x-goog-api-key": GEMINI_API_KEY,
-            },
-            method="POST"
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            gen_result = json_mod.loads(resp.read())
-
-        raw    = gen_result["candidates"][0]["content"]["parts"][0]["text"].strip().lower()
+        raw    = msg.content[0].text.strip().lower()
         result = raw.replace(" ", "-").replace("_", "-")[:60] or None
         if result:
-            log(f"  ✓ Gemini: {result}")
+            log(f"  ✓ Claude: {result}")
             return result, None
-        return None, "Gemini returned empty response"
+        return None, "Claude returned empty response"
 
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()[:200]
-        msg  = f"HTTP {e.code}: {body}"
-        log(f"  ✕ Gemini error: {msg}")
-        return None, msg
     except Exception as e:
         msg = str(e)[:150]
-        log(f"  ✕ Gemini error: {msg}")
+        log(f"  ✕ Claude error: {msg}")
         return None, msg
 
 # ── Flask Setup ─────────────────────────────────────────────────
@@ -218,8 +193,8 @@ def index():
 def api_status():
     return jsonify({
         "export_mode":    EXPORT_MODE,
-        "has_gemini_key": bool(GEMINI_API_KEY and len(GEMINI_API_KEY) > 10 and "YOUR-GEMINI-KEY" not in GEMINI_API_KEY),
-        "gemini_model":   GEMINI_MODEL,
+        "has_claude_key": bool(ANTHROPIC_API_KEY and len(ANTHROPIC_API_KEY) > 10 and "YOUR-KEY" not in ANTHROPIC_API_KEY),
+        "claude_model":   CLAUDE_MODEL,
     })
 
 @app.route("/api/current")
@@ -275,7 +250,7 @@ def api_video():
 def api_analyze():
     if current_idx >= len(files):
         return jsonify({"suggestion": ""})
-    suggestion, error = analyze_video_gemini(files[current_idx])
+    suggestion, error = analyze_video_claude(files[current_idx])
     if suggestion:
         return jsonify({"suggestion": suggestion})
     return jsonify({"suggestion": "", "error": error or "Could not analyze — type a name"})
@@ -543,7 +518,7 @@ kbd { background: var(--border); border-radius: 3px; padding: 1px 5px; font-size
 
 <div id="topbar">
   <span id="app-title">SORA Organizer</span>
-  <span id="gemini-badge">Gemini</span>
+  <span id="gemini-badge">Claude</span>
   <span id="mode-badge">ZIP MODE</span>
   <div id="progress-wrap"><div id="progress-fill"></div></div>
   <span id="topbar-counter">— / —</span>
@@ -568,7 +543,7 @@ kbd { background: var(--border); border-radius: 3px; padding: 1px 5px; font-size
     </div>
 
     <div class="s-section">
-      <div class="s-label">Gemini Description</div>
+      <div class="s-label">Claude Description</div>
       <div id="suggest-box">
         <div id="suggest-status">—</div>
         <div id="suggest-text">—</div>
@@ -632,10 +607,10 @@ async function init() {
   }
 
   const badge = document.getElementById('gemini-badge');
-  badge.textContent = s.has_gemini_key
-    ? `Gemini ✓  ${s.gemini_model}`
-    : 'No Gemini Key';
-  if (!s.has_gemini_key) badge.style.color = '#f87171';
+  badge.textContent = s.has_claude_key
+    ? `Claude ✓  ${s.claude_model}`
+    : 'No Claude Key';
+  if (!s.has_claude_key) badge.style.color = '#f87171';
 
   loadCurrent();
 }
@@ -683,7 +658,7 @@ function loadVideo() {
 }
 
 async function analyzeClip() {
-  setSuggestion('Uploading to Gemini…', true);
+  setSuggestion('Analyzing with Claude…', true);
   const res  = await fetch('/api/analyze', { method: 'POST' });
   const data = await res.json();
   const s    = (data.suggestion || '').trim();
@@ -701,7 +676,7 @@ function setSuggestion(text, loading, success) {
   const status = document.getElementById('suggest-status');
   const disp   = document.getElementById('suggest-text');
   if (loading) {
-    status.innerHTML = '<span class="pulse"></span> Uploading to Gemini…';
+    status.innerHTML = '<span class="pulse"></span> Analyzing with Claude…';
     disp.style.color = 'var(--muted)';
     disp.textContent = text;
   } else if (success) {
@@ -846,14 +821,14 @@ def open_browser():
 def main():
     print("\n" + "═" * 55)
     print("  SORA Video Organizer — Desktop Edition")
-    print(f"  Gemini Model : {GEMINI_MODEL}")
+    print(f"  Claude Model : {CLAUDE_MODEL}")
     print(f"  Export Mode  : {EXPORT_MODE.upper()}")
     print("═" * 55)
 
-    if not GEMINI_API_KEY or "YOUR-GEMINI-KEY" in GEMINI_API_KEY or len(GEMINI_API_KEY) < 10:
-        print("\n  ⚠  No Gemini API key set.")
-        print("     Edit GEMINI_API_KEY at the top of this file.")
-        print("     Get a free key at: aistudio.google.com/app/apikey\n")
+    if not ANTHROPIC_API_KEY or "YOUR-KEY" in ANTHROPIC_API_KEY or len(ANTHROPIC_API_KEY) < 10:
+        print("\n  ⚠  No Claude API key set.")
+        print("     Edit ANTHROPIC_API_KEY at the top of this file.")
+        print("     Get a key at: console.anthropic.com\n")
 
     if not ugc_root.exists():
         print(f"\n  ✕  Folder not found: {ugc_root}")
