@@ -67,6 +67,7 @@ CATEGORIES = {
     "7": ("ChasWatkins67-", "ChasWatkins67"),
     "8": ("GROK-",          "GROK"),
     "9": ("SORA_MISC-",     "SORA Misc"),
+    "10": ("META-",         "METAMORPOHSIS"),
 }
 
 # ════════════════════════════════════════════════════════════════
