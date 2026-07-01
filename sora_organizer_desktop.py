@@ -64,10 +64,9 @@ CATEGORIES = {
     "4": ("Playground-",    "Playground"),
     "5": ("UGA_irls-",      "UGA"),
     "6": ("WerBinIch-",     "Wer.bin.ich"),
-    "7": ("ChasWatkins67-", "ChasWatkins67"),
-    "8": ["MASK-",          "Disguise"],
-    "9": ["DISGUISE-",      "Disguise"],
-    "10": ["DISGUISE_MISC-","Disguise"],
+    "7": ["ChasWatkins67-", "ChasWatkins67"],
+    "8": ["MASK-",          "Masks"],
+    "9": ["MISC_DISGUISE-", "Miscellaneous"],
 }
 
 # ════════════════════════════════════════════════════════════════
