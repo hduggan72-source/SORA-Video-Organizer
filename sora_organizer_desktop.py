@@ -38,7 +38,7 @@ CLAUDE_MODEL = "claude-sonnet-4-6"
 
 # ── File Paths ──────────────────────────────────────────────────
 # Root folder where your creator subfolders will live
-WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-PRIME"
+WATCH_PATH = r"C:\Users\Admin\iCloudDrive\iCloudDrive\Multiverse\Earth-SORA1"
 
 # Drop video clips here to organize them
 INBOX_FOLDER = "_inbox"
